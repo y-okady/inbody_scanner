@@ -230,6 +230,10 @@ class _InBodyFormState extends State<InBodyForm> {
     Navigator.pop(context);
   }
 
+  _cancel() {
+    Navigator.pop(context);
+  }
+
   String _requiredDoubleValueValidator(String value) {
     if (value.isEmpty) {
       return '必須です';
@@ -359,10 +363,28 @@ class _InBodyFormState extends State<InBodyForm> {
                     validator: _requiredDoubleValueValidator,
                     onSaved: (text) => widget.data.leftLegPercentage = double.parse(text),
                   ),
-                  RaisedButton(
-                    onPressed: _save,
-                    child: Text("登録する"),
-                  )
+                  Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        RaisedButton(
+                          color: Colors.blue,
+                          child: Text(
+                            '登録',
+                            style: TextStyle(
+                              color: Colors.white
+                            ),
+                          ),
+                          onPressed: _save,
+                        ),
+                        FlatButton(
+                          child: Text('キャンセル'),
+                          onPressed: _cancel,
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
