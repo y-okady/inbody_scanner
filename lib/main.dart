@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() => runApp(MyApp());
 
@@ -13,13 +16,22 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en'),
+        const Locale('ja'),
+      ],
       home: MyHomePage(title: 'InBody履歴'),
     );
   }
 }
 
 class InBodyData {
-  String date;
+  DateTime date;
   double bodyWeight;
   double muscleWeight;
   double bodyFatWeight;
@@ -35,7 +47,7 @@ class InBodyData {
   double leftLegPercentage;
 
   void dump() {
-    print("日付: " + date);
+    print("日付: " + date.toString());
     print("体重: " + bodyWeight.toString() + " kg");
     print("筋肉: " + muscleWeight.toString() + " kg");
     print("体脂肪: " + bodyFatWeight.toString() + " kg");
@@ -97,7 +109,8 @@ class _MyHomePageState extends State<MyHomePage> {
     for (int i = 0; i < texts.length; i++) {
       if ((new RegExp('^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}\$').hasMatch(texts[i]))) {
         if (data.date == null) {
-          data.date = texts[i];
+          List<String> substrings = texts[i].split('.');
+          data.date = DateTime(int.parse(substrings[0]), int.parse(substrings[1]), int.parse(substrings[2]));
         }
       } else if (texts[i].endsWith('kg')) {
         double value = _findNumeric(texts[i].replaceAll('kg', ''), texts, i);
@@ -199,81 +212,26 @@ class InBodyForm extends StatefulWidget {
 
 class _InBodyFormState extends State<InBodyForm> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController _dateController;
-  TextEditingController _bodyWeightController;
-  TextEditingController _muscleWeightController;
-  TextEditingController _bodyFatWeightController;
-  TextEditingController _rightArmWeightController;
-  TextEditingController _leftArmWeightController;
-  TextEditingController _trunkWeightController;
-  TextEditingController _rightLegWeightController;
-  TextEditingController _leftLegWeightController;
-  TextEditingController _bmiController;
-  TextEditingController _bodyFatPercentageController;
-  TextEditingController _trunkPercentageController;
-  TextEditingController _rightLegPercentageController;
-  TextEditingController _leftLegPercentageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _dateController = TextEditingController(text: widget.data.date);
-    _bodyWeightController = TextEditingController(text: widget.data.bodyWeight.toString());
-    _muscleWeightController = TextEditingController(text: widget.data.muscleWeight.toString());
-    _bodyFatWeightController = TextEditingController(text: widget.data.bodyFatWeight.toString());
-    _rightArmWeightController = TextEditingController(text: widget.data.rightArmWeight.toString());
-    _leftArmWeightController = TextEditingController(text: widget.data.leftArmWeight.toString());
-    _trunkWeightController = TextEditingController(text: widget.data.trunkWeight.toString());
-    _rightLegWeightController = TextEditingController(text: widget.data.rightLegWeight.toString());
-    _leftLegWeightController = TextEditingController(text: widget.data.leftLegWeight.toString());
-    _bmiController = TextEditingController(text: widget.data.bmi.toString());
-    _bodyFatPercentageController = TextEditingController(text: widget.data.bodyFatPercentage.toString());
-    _trunkPercentageController = TextEditingController(text: widget.data.trunkPercentage.toString());
-    _rightLegPercentageController = TextEditingController(text: widget.data.rightLegPercentage.toString());
-    _leftLegPercentageController = TextEditingController(text: widget.data.leftLegPercentage.toString());
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _dateController.dispose();
-    _bodyWeightController.dispose();
-    _muscleWeightController.dispose();
-    _bodyFatWeightController.dispose();
-    _rightArmWeightController.dispose();
-    _leftArmWeightController.dispose();
-    _trunkWeightController.dispose();
-    _rightLegWeightController.dispose();
-    _leftLegWeightController.dispose();
-    _bmiController.dispose();
-    _bodyFatPercentageController.dispose();
-    _trunkPercentageController.dispose();
-    _rightLegPercentageController.dispose();
-    _leftLegPercentageController.dispose();
-  }
 
   _save() {
-    if (_formKey.currentState.validate()) {
-      InBodyData data = InBodyData();
-      data.date = _dateController.text;
-      data.bodyWeight = double.parse(_bodyWeightController.text);
-      data.muscleWeight = double.parse(_muscleWeightController.text);
-      data.bodyFatWeight = double.parse(_bodyFatWeightController.text);
-      data.rightArmWeight = double.parse(_rightArmWeightController.text);
-      data.leftArmWeight = double.parse(_leftArmWeightController.text);
-      data.trunkWeight = double.parse(_trunkWeightController.text);
-      data.rightLegWeight = double.parse(_rightLegWeightController.text);
-      data.leftLegWeight = double.parse(_leftLegWeightController.text);
-      data.bmi = double.parse(_bmiController.text);
-      data.bodyFatPercentage = double.parse(_bodyFatPercentageController.text);
-      data.trunkPercentage = double.parse(_trunkPercentageController.text);
-      data.rightLegPercentage = double.parse(_rightLegPercentageController.text);
-      data.leftLegPercentage = double.parse(_leftLegPercentageController.text);
-      // data.dump();
-      Navigator.pop(context);
-    } else {
-      // TODO: error handling
+    if (!_formKey.currentState.validate()) {
+      return;
     }
+    // widget.data.dump();
+    _formKey.currentState.save();
+    Navigator.pop(context);
+  }
+
+  String _requiredDoubleValueValidator(String value) {
+    if (value.isEmpty) {
+      return '必須です';
+    }
+    try {
+      double.parse(value);
+    } on FormatException {
+      return '数値を入力してください';
+    }
+    return null;
   }
 
   @override
@@ -290,75 +248,108 @@ class _InBodyFormState extends State<InBodyForm> {
               key: _formKey,
               child: new Column(
                 children: <Widget>[
-                  TextFormField(
+                  DateTimeField(
                     decoration: InputDecoration(labelText: '日付'),
-                    keyboardType: TextInputType.text,
-                    controller: _dateController,
+                    format: DateFormat("yyyy-MM-dd"),
+                    initialValue: widget.data.date,
+                    onShowPicker: (context, currentValue) => showDatePicker(
+                      context: context,
+                      locale: const Locale('ja'),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime(2100),
+                      initialDate: currentValue ?? widget.data.date,
+                    ),
+                    onSaved: (date) => widget.data.date = date,
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: '体重 (kg)'),
                     keyboardType: TextInputType.text,
-                    controller: _bodyWeightController,
+                    initialValue: widget.data.bodyWeight.toString(),
+                    validator: _requiredDoubleValueValidator,
+                    onSaved: (text) => widget.data.bodyWeight = double.parse(text),
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: '筋肉 (kg)'),
                     keyboardType: TextInputType.text,
-                    controller: _muscleWeightController,
+                    initialValue: widget.data.muscleWeight.toString(),
+                    onSaved: (text) => widget.data.muscleWeight = double.parse(text),
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: '体脂肪 (kg)'),
                     keyboardType: TextInputType.text,
-                    controller: _bodyFatWeightController,
+                    initialValue: widget.data.bodyFatWeight.toString(),
+                    validator: _requiredDoubleValueValidator,
+                    onSaved: (text) => widget.data.bodyFatWeight = double.parse(text),
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: '右腕 (kg)'),
                     keyboardType: TextInputType.text,
-                    controller: _rightArmWeightController,
+                    initialValue: widget.data.rightArmWeight.toString(),
+                    validator: _requiredDoubleValueValidator,
+                    onSaved: (text) => widget.data.rightArmWeight = double.parse(text),
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: '左腕 (kg)'),
                     keyboardType: TextInputType.text,
-                    controller: _leftArmWeightController,
+                    initialValue: widget.data.leftArmWeight.toString(),
+                    validator: _requiredDoubleValueValidator,
+                    onSaved: (text) => widget.data.leftArmWeight = double.parse(text),
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: '胴体 (kg)'),
                     keyboardType: TextInputType.text,
-                    controller: _trunkWeightController,
+                    initialValue: widget.data.trunkWeight.toString(),
+                    validator: _requiredDoubleValueValidator,
+                    onSaved: (text) => widget.data.trunkWeight = double.parse(text),
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: '右脚 (kg)'),
                     keyboardType: TextInputType.text,
-                    controller: _rightLegWeightController,
+                    initialValue: widget.data.rightLegWeight.toString(),
+                    validator: _requiredDoubleValueValidator,
+                    onSaved: (text) => widget.data.rightLegWeight = double.parse(text),
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: '左脚 (kg)'),
                     keyboardType: TextInputType.text,
-                    controller: _leftLegWeightController,
+                    initialValue: widget.data.leftLegWeight.toString(),
+                    validator: _requiredDoubleValueValidator,
+                    onSaved: (text) => widget.data.leftLegWeight = double.parse(text),
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: 'BMI (kg/m2)'),
                     keyboardType: TextInputType.text,
-                    controller: _bmiController,
+                    initialValue: widget.data.bmi.toString(),
+                    validator: _requiredDoubleValueValidator,
+                    onSaved: (text) => widget.data.bmi= double.parse(text),
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: '体脂肪率 (%)'),
                     keyboardType: TextInputType.text,
-                    controller: _bodyFatPercentageController,
+                    initialValue: widget.data.bodyFatPercentage.toString(),
+                    validator: _requiredDoubleValueValidator,
+                    onSaved: (text) => widget.data.bodyFatPercentage = double.parse(text),
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: '発達程度:胴体 (%)'),
                     keyboardType: TextInputType.text,
-                    controller: _trunkPercentageController,
+                    initialValue: widget.data.trunkPercentage.toString(),
+                    validator: _requiredDoubleValueValidator,
+                    onSaved: (text) => widget.data.trunkPercentage = double.parse(text),
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: '発達程度:右脚 (%)'),
                     keyboardType: TextInputType.text,
-                    controller: _rightLegPercentageController,
+                    initialValue: widget.data.rightLegPercentage.toString(),
+                    validator: _requiredDoubleValueValidator,
+                    onSaved: (text) => widget.data.rightLegPercentage = double.parse(text),
                   ),
                   TextFormField(
                     decoration: InputDecoration(labelText: '発達程度:左脚 (%)'),
                     keyboardType: TextInputType.text,
-                    controller: _leftLegPercentageController,
+                    initialValue: widget.data.leftLegPercentage.toString(),
+                    validator: _requiredDoubleValueValidator,
+                    onSaved: (text) => widget.data.leftLegPercentage = double.parse(text),
                   ),
                   RaisedButton(
                     onPressed: _save,
