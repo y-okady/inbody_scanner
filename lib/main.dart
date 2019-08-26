@@ -74,6 +74,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool _loading = false;
+
   Future<File> _pickImage() async {
     return await ImagePicker.pickImage(source: ImageSource.gallery);
   }
@@ -153,11 +155,20 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _loadImage() async {
+    if (_loading) {
+      return;
+    }
     final File image = await _pickImage();
     if (image == null) {
       return;
     }
+    setState(() {
+      _loading = true;
+    });
     InBodyData data = await _scanImage(image);
+    setState(() {
+      _loading = false;
+    });
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -175,23 +186,20 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            // _image != null ? Container(
-            //   height: 200.0,
-            //   width: 200.0,
-            //   decoration: BoxDecoration(
-            //     image: DecorationImage(
-            //       image: FileImage(_image),
-            //       fit: BoxFit.cover,
-            //     )
-            //   ),
-            // ) : Container(),
-          ],
-        ),
-      ),
+      body: _loading ? Stack(
+        children: [
+          Opacity(
+            opacity: 0.3,
+            child: const ModalBarrier(
+              dismissible: false,
+              color: Colors.grey,
+            )
+          ),
+          Center(
+            child: CircularProgressIndicator(),
+          ),
+        ]
+      ) : Container(),
       floatingActionButton: FloatingActionButton(
         onPressed: _loadImage,
         tooltip: '画像を読み込む',
