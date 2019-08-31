@@ -21,7 +21,7 @@ class _InBodyFormState extends State<InBodyForm> {
       return;
     }
     _formKey.currentState.save();
-    // print(widget.data.toJson());
+    widget.data.save();
     Navigator.pop(context);
   }
 

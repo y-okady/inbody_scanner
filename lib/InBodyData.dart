@@ -1,10 +1,14 @@
+import 'dart:convert';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // flutter pub run build_runner build
 part 'InBodyData.g.dart';
 
 @JsonSerializable()
 class InBodyData {
+  static const String KEY = 'inBodyData';
+
   DateTime date;
   double bodyWeight;
   double muscleWeight;
@@ -39,4 +43,24 @@ class InBodyData {
   factory InBodyData.fromJson(Map<String, dynamic> json) => _$InBodyDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$InBodyDataToJson(this);
+
+  Future<bool> save() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Map<DateTime, InBodyData> map = await load();
+    map[date] = this;
+    return prefs.setString(KEY, jsonEncode(map.map((DateTime date, InBodyData data) =>
+      MapEntry(date.toIso8601String(), data.toJson())
+    )));
+  }
+
+  static Future<Map<DateTime, InBodyData>> load() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey(KEY)) {
+      return Map();
+    }
+    Map<String, dynamic> json = jsonDecode(prefs.get(KEY));
+    return json.map((String key, dynamic value) =>
+      MapEntry(DateTime.parse(key), InBodyData.fromJson(value))
+    );
+  }
 }
