@@ -1,21 +1,57 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'InBodyData.dart';
 import 'InBodyForm.dart';
+import 'InBodyHistory.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key key, this.title}) : super(key: key);
-
-  final String title;
+  HomeScreen({Key key}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  static const String KEY = 'inBodyData';
   bool _loading = false;
+  Map<DateTime, InBodyData> _history;
+
+  @override
+  void initState() {
+    super.initState();
+    _getHistory().then((history) {
+      setState(() {
+        _history = history;
+      });
+    });
+  }
+
+  Future<Map<DateTime, InBodyData>> _getHistory() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey(KEY)) {
+      return Map();
+    }
+    Map<String, dynamic> json = jsonDecode(prefs.get(KEY));
+    return json.map((String key, dynamic value) =>
+      MapEntry(DateTime.parse(key), InBodyData.fromJson(value))
+    );
+  }
+
+  Future<void> _addHistory(InBodyData data) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Map<DateTime, InBodyData> history = _history;
+    history[data.date] = data;
+    await prefs.setString(KEY, jsonEncode(history.map((DateTime date, InBodyData data) =>
+      MapEntry(date.toIso8601String(), data.toJson())
+    )));
+    setState(() {
+      _history = history;
+    });
+  }
 
   Future<File> _pickImage() async {
     return await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -105,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(
         builder: (BuildContext context) {
-          return InBodyForm(data: data);
+          return InBodyForm(data: data, onSubmit: _addHistory);
         },
         fullscreenDialog: true,
       )
@@ -116,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('InBody履歴'),
       ),
       body: _loading ? Stack(
         children: [
@@ -131,7 +167,9 @@ class _HomeScreenState extends State<HomeScreen> {
             child: CircularProgressIndicator(),
           ),
         ]
-      ) : Container(),
+      ) : Container(
+        child: InBodyHistory(history: _history)
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _loadImage,
         tooltip: '画像を読み込む',

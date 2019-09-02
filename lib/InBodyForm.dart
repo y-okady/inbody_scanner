@@ -5,9 +5,10 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'InBodyData.dart';
 
 class InBodyForm extends StatefulWidget {
-  InBodyForm({Key key, this.data}) : super(key: key);
+  InBodyForm({Key key, this.data, this.onSubmit}) : super(key: key);
 
   final InBodyData data;
+  final Function onSubmit;
 
   @override
   _InBodyFormState createState() => _InBodyFormState();
@@ -21,7 +22,7 @@ class _InBodyFormState extends State<InBodyForm> {
       return;
     }
     _formKey.currentState.save();
-    widget.data.save();
+    widget.onSubmit(widget.data);
     Navigator.pop(context);
   }
 

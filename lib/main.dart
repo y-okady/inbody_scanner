@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         const Locale('en'),
         const Locale('ja'),
       ],
-      home: HomeScreen(title: 'InBody履歴'),
+      home: HomeScreen(),
     );
   }
 }
