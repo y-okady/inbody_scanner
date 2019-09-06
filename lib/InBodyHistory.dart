@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'InBodyData.dart';
 
 class InBodyHistory extends StatefulWidget {
@@ -13,10 +14,34 @@ class InBodyHistory extends StatefulWidget {
 class _InBodyHistoryState extends State<InBodyHistory> {
   @override
   Widget build(BuildContext context) {
-    return widget.history != null ? Container(
-      child: Column(
-        children: widget.history.values.map((InBodyData data) => Text(data.toJson().toString())).toList(),
+    if (widget.history == null) {
+      return Container();
+    }
+    List<DateTime> dates = widget.history.keys.toList();
+    dates.sort();
+    return Container(
+      padding: EdgeInsets.only(top: 10, right: 10, bottom: 80, left: 10),
+      child: charts.TimeSeriesChart(
+        [
+          charts.Series<LinearBodyWeight, DateTime> (
+            id: 'BodyWeight',
+            domainFn: (LinearBodyWeight bodyWeight, _) => bodyWeight.date,
+            measureFn: (LinearBodyWeight bodyWeight, _) => bodyWeight.value,
+            data: dates.map((DateTime date) => LinearBodyWeight(date, widget.history[date].bodyWeight)).toList(),
+          ),
+        ],
+        domainAxis: charts.EndPointsTimeAxisSpec(),
+        primaryMeasureAxis: charts.NumericAxisSpec(
+          tickProviderSpec: charts.BasicNumericTickProviderSpec(zeroBound: false),
+        ),
       ),
-    ) : Container();
+    );
   }
+}
+
+class LinearBodyWeight {
+  final DateTime date;
+  final double value;
+
+  LinearBodyWeight(this.date, this.value);
 }
