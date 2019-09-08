@@ -125,7 +125,7 @@ class _InBodyFormState extends State<InBodyForm> {
                     onSaved: (text) => widget.data.leftLegWeight = double.parse(text),
                   ),
                   TextFormField(
-                    decoration: InputDecoration(labelText: 'BMI (kg/m2)'),
+                    decoration: InputDecoration(labelText: 'BMI (kg/㎡)'),
                     keyboardType: TextInputType.text,
                     initialValue: widget.data.bmi.toString(),
                     validator: _requiredDoubleValueValidator,
