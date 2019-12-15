@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,7 +10,9 @@ import 'InBodyForm.dart';
 import 'InBodyHistory.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key key}) : super(key: key);
+  HomeScreen({Key key, this.title}) : super(key: key);
+
+  final String title;
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -19,15 +22,24 @@ class _HomeScreenState extends State<HomeScreen> {
   static const String KEY = 'inBodyData';
   bool _loading = false;
   Map<DateTime, InBodyData> _history;
+  FirebaseUser _user;
 
   @override
   void initState() {
     super.initState();
+
+    FirebaseAuth.instance.currentUser().then((user) {
+      _user = user;
+    });
     _getHistory().then((history) {
       setState(() {
         _history = history;
       });
     });
+  }
+
+  Future<void> _handleSignOut() async {
+    return await FirebaseAuth.instance.signOut();
   }
 
   Future<Map<DateTime, InBodyData>> _getHistory() async {
@@ -152,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('InBody Scanner for ルネサンス'),
+        title: Text(widget.title),
       ),
       body: _loading ? Stack(
         children: [
@@ -167,8 +179,26 @@ class _HomeScreenState extends State<HomeScreen> {
             child: CircularProgressIndicator(),
           ),
         ]
-      ) : Container(
-        child: InBodyHistory(history: _history)
+      ) : SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              child: InBodyHistory(history: _history),
+            ),
+            Container(
+              child: FlatButton(
+                onPressed: () {
+                  _handleSignOut()
+                    .then((_) {
+                      Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+                    });
+                },
+                child: Text('ログアウト'),
+              ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _loadImage,

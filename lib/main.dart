@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'SplashScreen.dart';
+import 'LoginScreen.dart';
 import 'HomeScreen.dart';
 
 void main() => runApp(MyApp());
+
+const String TITLE = 'InBody Scanner for ルネサンス';
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'InBody Scanner for ルネサンス',
+      title: TITLE,
       theme: ThemeData(
         primarySwatch: Colors.pink,
       ),
@@ -21,7 +25,12 @@ class MyApp extends StatelessWidget {
         const Locale('en'),
         const Locale('ja'),
       ],
-      home: HomeScreen(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => SplashScreen(),
+        '/login': (context) => LoginScreen(),
+        '/home': (context) => HomeScreen(title: TITLE),
+      },
     );
   }
 }
