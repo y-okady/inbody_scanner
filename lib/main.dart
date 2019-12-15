@@ -8,9 +8,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'InBody履歴',
+      title: 'InBody Scanner for ルネサンス',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.pink,
       ),
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,

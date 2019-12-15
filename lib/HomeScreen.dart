@@ -152,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('InBody履歴'),
+        title: Text('InBody Scanner for ルネサンス'),
       ),
       body: _loading ? Stack(
         children: [
