@@ -1,10 +1,10 @@
+import 'dart:async';
 import 'dart:io';
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'InBodyData.dart';
 import 'InBodyForm.dart';
 import 'InBodyHistory.dart';
@@ -23,51 +23,47 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _loading = false;
   Map<DateTime, InBodyData> _history;
   FirebaseUser _user;
+  StreamSubscription<QuerySnapshot> _measurementsSubscription;
 
   @override
   void initState() {
     super.initState();
 
-    FirebaseAuth.instance.currentUser().then((user) {
-      _user = user;
-    });
-    _getHistory().then((history) {
+    FirebaseAuth.instance.currentUser()
+      .then((user) => _user = user)
+      .then((_) => _measurementsSubscription = _subscribeMeasurements());
+  }
+
+  @override
+  void dispose() {
+    if (_measurementsSubscription != null) {
+      _measurementsSubscription.cancel();
+    }
+    super.dispose();
+  }
+
+  Future<void> _handleSignOut() =>
+    FirebaseAuth.instance.signOut();
+
+  CollectionReference _getMeasurementsCollection() =>
+    Firestore.instance.collection('users').document(_user.uid).collection('measurements');
+
+  Future<void> _addMeasurement(InBodyData data) =>
+    _getMeasurementsCollection().document().setData(data.toJson());
+
+  StreamSubscription<QuerySnapshot> _subscribeMeasurements() =>
+    _getMeasurementsCollection().snapshots().listen((data) {
+      Map<DateTime, InBodyData> history = Map.fromIterable(data.documents,
+        key: (doc) => DateTime.parse(doc['date']),
+        value: (doc) => InBodyData.fromJson(doc.data),
+      );
       setState(() {
         _history = history;
       });
     });
-  }
 
-  Future<void> _handleSignOut() async {
-    return await FirebaseAuth.instance.signOut();
-  }
-
-  Future<Map<DateTime, InBodyData>> _getHistory() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey(KEY)) {
-      return Map();
-    }
-    Map<String, dynamic> json = jsonDecode(prefs.get(KEY));
-    return json.map((String key, dynamic value) =>
-      MapEntry(DateTime.parse(key), InBodyData.fromJson(value))
-    );
-  }
-
-  Future<void> _addHistory(InBodyData data) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    Map<DateTime, InBodyData> history = _history;
-    history[data.date] = data;
-    await prefs.setString(KEY, jsonEncode(history.map((DateTime date, InBodyData data) =>
-      MapEntry(date.toIso8601String(), data.toJson())
-    )));
-    setState(() {
-      _history = history;
-    });
-  }
-
-  Future<File> _pickImage() async {
-    return await ImagePicker.pickImage(source: ImageSource.gallery);
-  }
+  Future<File> _pickImage() =>
+    ImagePicker.pickImage(source: ImageSource.gallery);
 
   double _findNumeric(String text, List<String> texts, int index) {
     int prevIndex = index - 1;
@@ -153,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(
         builder: (BuildContext context) {
-          return InBodyForm(data: data, onSubmit: _addHistory);
+          return InBodyForm(data: data, onSubmit: _addMeasurement);
         },
         fullscreenDialog: true,
       )
