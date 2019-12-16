@@ -18,6 +18,11 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
+enum AppBarMenuItem {
+  LoadImage,
+  SignOut,
+}
+
 class _HomeScreenState extends State<HomeScreen> {
   static const String KEY = 'inBodyData';
   bool _loading = false;
@@ -42,8 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  Future<void> _handleSignOut() =>
-    FirebaseAuth.instance.signOut();
+  void _signOut() =>
+    FirebaseAuth.instance.signOut()
+      .then((_) => Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false));
 
   CollectionReference _getMeasurementsCollection() =>
     Firestore.instance.collection('users').document(_user.uid).collection('measurements');
@@ -161,6 +167,32 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          PopupMenuButton(
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: AppBarMenuItem.LoadImage,
+                child: Text('写真を読み込む'),
+              ),
+              PopupMenuItem(
+                value: AppBarMenuItem.SignOut,
+                child: Text('ログアウト'),
+              ),
+            ],
+            onSelected: (value) {
+              switch (value) {
+                case AppBarMenuItem.LoadImage:
+                  _loadImage();
+                  break;
+                case AppBarMenuItem.SignOut:
+                  _signOut();
+                  break;
+                default:
+                  break;
+              }
+            },
+          ),
+        ],
       ),
       body: _loading ? Stack(
         children: [
@@ -175,26 +207,8 @@ class _HomeScreenState extends State<HomeScreen> {
             child: CircularProgressIndicator(),
           ),
         ]
-      ) : SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              child: InBodyHistory(history: _history),
-            ),
-            Container(
-              child: FlatButton(
-                onPressed: () {
-                  _handleSignOut()
-                    .then((_) {
-                      Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
-                    });
-                },
-                child: Text('ログアウト'),
-              ),
-            ),
-          ],
-        ),
+      ) : Container(
+        child: InBodyHistory(history: _history),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _loadImage,
