@@ -177,12 +177,21 @@ packages:
     source: hosted
     version: "1.3.3"
   datetime_picker_formfield:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: datetime_picker_formfield
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0-pre.5"
+  edge_detection:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: migrate-to-swift-5
+      resolved-ref: e77b8ac670774cfc394fb13e79eda2561ea497a5
+      url: "git://github.com/y-okady/edge_detection.git"
+    source: git
+    version: "1.0.4"
   firebase:
     dependency: transitive
     description:
@@ -212,7 +221,7 @@ packages:
     source: hosted
     version: "0.1.1+1"
   firebase_core:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: firebase_core
       url: "https://pub.dartlang.org"
@@ -233,7 +242,7 @@ packages:
     source: hosted
     version: "0.1.1+1"
   firebase_ml_vision:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: firebase_ml_vision
       url: "https://pub.dartlang.org"
@@ -351,7 +360,7 @@ packages:
     source: hosted
     version: "2.1.4"
   image_picker:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: image_picker
       url: "https://pub.dartlang.org"
@@ -386,7 +395,7 @@ packages:
     source: hosted
     version: "3.0.0"
   json_serializable:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: json_serializable
       url: "https://pub.dartlang.org"
