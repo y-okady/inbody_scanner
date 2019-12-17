@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'InBodyData.dart';
+import 'InBodyForm.dart';
 
 class InBodyListScreen extends StatefulWidget {
   @override
@@ -37,6 +38,10 @@ class _InBodyListScreenState extends State<InBodyListScreen> {
     FirebaseAuth.instance.currentUser()
       .then((user) => Firestore.instance.collection('users').document(user.uid).collection('measurements'));
 
+  Future<void> _updateMeasurement(InBodyData data) =>
+    _getMeasurementsCollection()
+      .then((collection) => collection.document(data.id).setData(data.toJson()));
+
   Future<void> _deleteMeasurement(InBodyData data) =>
     _getMeasurementsCollection()
       .then((collection) => collection.document(data.id).delete());
@@ -65,6 +70,15 @@ class _InBodyListScreenState extends State<InBodyListScreen> {
               title: Text(DateFormat('yyyy-MM-dd').format(_measurements[i].date)),
               subtitle: Text('体重 ${_measurements[i].bodyWeight} kg, 筋肉 ${_measurements[i].muscleWeight} kg, 体脂肪 ${_measurements[i].bodyFatWeight} kg, BMI ${_measurements[i].bmi} kg/㎡, 体脂肪率 ${_measurements[i].bodyFatPercentage} %'),
               contentPadding: EdgeInsets.all(12.0),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                      InBodyForm(_measurements[i], _updateMeasurement),
+                    fullscreenDialog: true,
+                  )
+                );
+              },
             ),
             actions: [],
             secondaryActions: [

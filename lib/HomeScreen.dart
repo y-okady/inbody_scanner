@@ -81,15 +81,14 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _loading = true;
     });
-    InBodyData data = await InBodyScanner.scan(image);
+    InBodyData measurement = await InBodyScanner.scan(image);
     setState(() {
       _loading = false;
     });
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (BuildContext context) {
-          return InBodyForm(data: data, onSubmit: _addMeasurement);
-        },
+        builder: (BuildContext context) =>
+          InBodyForm(measurement, _addMeasurement),
         fullscreenDialog: true,
       )
     );
