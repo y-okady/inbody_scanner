@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'InBodyData.dart';
 import 'InBodyForm.dart';
-import 'InBodyHistory.dart';
+import 'InBodyCharts.dart';
 import 'InBodyListScreen.dart';
 import 'InBodyScanner.dart';
 
@@ -29,17 +29,15 @@ enum AppBarMenuItem {
 class _HomeScreenState extends State<HomeScreen> {
   static const String KEY = 'inBodyData';
   bool _loading = false;
-  Map<DateTime, InBodyData> _history;
-  FirebaseUser _user;
+  List<InBodyData> _measurements = List();
   StreamSubscription<QuerySnapshot> _measurementsSubscription;
 
   @override
   void initState() {
     super.initState();
 
-    FirebaseAuth.instance.currentUser()
-      .then((user) => _user = user)
-      .then((_) => _measurementsSubscription = _subscribeMeasurements());
+    _subscribeMeasurements()
+      .then((subscription) => _measurementsSubscription = subscription);
   }
 
   @override
@@ -54,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (BuildContext context) {
-          return InBodyListScreen(history: _history);
+          return InBodyListScreen();
         },
       )
     );
@@ -63,22 +61,21 @@ class _HomeScreenState extends State<HomeScreen> {
     FirebaseAuth.instance.signOut()
       .then((_) => Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false));
 
-  CollectionReference _getMeasurementsCollection() =>
-    Firestore.instance.collection('users').document(_user.uid).collection('measurements');
+  Future<CollectionReference> _getMeasurementsCollection() =>
+    FirebaseAuth.instance.currentUser()
+      .then((user) => Firestore.instance.collection('users').document(user.uid).collection('measurements'));
 
   Future<void> _addMeasurement(InBodyData data) =>
-    _getMeasurementsCollection().document().setData(data.toJson());
+    _getMeasurementsCollection()
+      .then((collection) => collection.document().setData(data.toJson()));
 
-  StreamSubscription<QuerySnapshot> _subscribeMeasurements() =>
-    _getMeasurementsCollection().snapshots().listen((data) {
-      Map<DateTime, InBodyData> history = Map.fromIterable(data.documents,
-        key: (doc) => DateTime.parse(doc['date']),
-        value: (doc) => InBodyData.fromJson(doc.documentID, doc.data),
-      );
-      setState(() {
-        _history = history;
-      });
-    });
+  Future<StreamSubscription<QuerySnapshot>> _subscribeMeasurements() =>
+    _getMeasurementsCollection()
+      .then((collection) => collection.orderBy('date', descending: true).snapshots().listen((data) {
+        setState(() {
+          _measurements = data.documents.map((doc) => InBodyData.fromJson(doc.documentID, doc.data)).toList();
+        });
+      }));
 
   Future<void> _scanImage(final File image) async {
     setState(() {
@@ -169,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ]
       ) : Container(
-        child: InBodyHistory(history: _history),
+        child: InBodyCharts(_measurements),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _takePhoto,

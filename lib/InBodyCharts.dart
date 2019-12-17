@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'InBodyData.dart';
 
-class InBodyHistory extends StatefulWidget {
-  InBodyHistory({Key key, this.history}) : super(key: key);
+class InBodyCharts extends StatefulWidget {
+  InBodyCharts(this.measurements, {Key key}) : super(key: key);
 
-  final Map<DateTime, InBodyData> history;
+  final List<InBodyData> measurements;
 
   @override
-  _InBodyHistoryState createState() => _InBodyHistoryState();
+  _InBodyChartsState createState() => _InBodyChartsState();
 }
 
-class _InBodyHistoryState extends State<InBodyHistory> {
+class _InBodyChartsState extends State<InBodyCharts> {
   Widget _buildChart(String caption, List<LinearData> values, List<ChartSeries> serieses, {bool legend = true}) {
     return Column(
       children: <Widget>[
@@ -49,12 +49,7 @@ class _InBodyHistoryState extends State<InBodyHistory> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.history == null) {
-      return Container();
-    }
-    List<DateTime> dates = widget.history.keys.toList();
-    dates.sort();
-    final List<LinearData> values = dates.map((DateTime date) => LinearData(date, widget.history[date])).toList();
+    final List<LinearData> values = widget.measurements.map((InBodyData measurement) => LinearData(measurement.date, measurement)).toList();
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
