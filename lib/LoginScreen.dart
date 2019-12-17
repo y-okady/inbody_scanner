@@ -28,7 +28,7 @@ class LoginScreen extends StatelessWidget {
                 _handleSignIn()
                   .then((AuthResult result) {
                     if (result.user != null) {
-                      Navigator.pushReplacementNamed(context, '/home');
+                      Navigator.of(context).pushReplacementNamed('/home');
                     }
                   })
                   .catchError((e) => print(e));

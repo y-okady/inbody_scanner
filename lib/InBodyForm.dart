@@ -23,11 +23,11 @@ class _InBodyFormState extends State<InBodyForm> {
     }
     _formKey.currentState.save();
     widget.onSubmit(widget.data);
-    Navigator.pop(context);
+    Navigator.of(context).pop();
   }
 
   _cancel() {
-    Navigator.pop(context);
+    Navigator.of(context).pop();
   }
 
   String _requiredDoubleValueValidator(String value) {

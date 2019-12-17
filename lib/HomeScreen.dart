@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'InBodyData.dart';
 import 'InBodyForm.dart';
 import 'InBodyHistory.dart';
+import 'InBodyListScreen.dart';
 import 'InBodyScanner.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -21,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 
 enum AppBarMenuItem {
   LoadImage,
+  EditHistory,
   SignOut,
 }
 
@@ -48,9 +50,18 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  void _navigateToEditHistory() =>
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) {
+          return InBodyListScreen(history: _history);
+        },
+      )
+    );
+
   void _signOut() =>
     FirebaseAuth.instance.signOut()
-      .then((_) => Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false));
+      .then((_) => Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false));
 
   CollectionReference _getMeasurementsCollection() =>
     Firestore.instance.collection('users').document(_user.uid).collection('measurements');
@@ -62,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _getMeasurementsCollection().snapshots().listen((data) {
       Map<DateTime, InBodyData> history = Map.fromIterable(data.documents,
         key: (doc) => DateTime.parse(doc['date']),
-        value: (doc) => InBodyData.fromJson(doc.data),
+        value: (doc) => InBodyData.fromJson(doc.documentID, doc.data),
       );
       setState(() {
         _history = history;
@@ -77,8 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _loading = false;
     });
-    Navigator.push(
-      context,
+    Navigator.of(context).push(
       MaterialPageRoute(
         builder: (BuildContext context) {
           return InBodyForm(data: data, onSubmit: _addMeasurement);
@@ -119,6 +129,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Text('写真を読み込む'),
               ),
               PopupMenuItem(
+                value: AppBarMenuItem.EditHistory,
+                child: Text('データを編集する'),
+              ),
+              PopupMenuItem(
                 value: AppBarMenuItem.SignOut,
                 child: Text('ログアウト'),
               ),
@@ -127,6 +141,9 @@ class _HomeScreenState extends State<HomeScreen> {
               switch (value) {
                 case AppBarMenuItem.LoadImage:
                   _loadImage();
+                  break;
+                case AppBarMenuItem.EditHistory:
+                  _navigateToEditHistory();
                   break;
                 case AppBarMenuItem.SignOut:
                   _signOut();

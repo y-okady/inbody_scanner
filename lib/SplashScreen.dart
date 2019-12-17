@@ -11,12 +11,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    new Timer(new Duration(seconds: 3), navigationPage);
+    new Timer(new Duration(seconds: 3), _navigateToTop);
   }
 
-  void navigationPage() {
+  void _navigateToTop() {
     FirebaseAuth.instance.currentUser().then((user) {
-      Navigator.pushReplacementNamed(context, user == null ? '/login' : '/home');
+      Navigator.of(context).pushReplacementNamed(user == null ? '/login' : '/home');
     });
   }
 
