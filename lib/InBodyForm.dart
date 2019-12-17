@@ -65,7 +65,7 @@ class _InBodyFormState extends State<InBodyForm> {
                       locale: const Locale('ja'),
                       firstDate: DateTime(1900),
                       lastDate: DateTime(2100),
-                      initialDate: currentValue ?? widget.data.date,
+                      initialDate: currentValue ?? DateTime.now(),
                     ),
                     onSaved: (date) => widget.data.date = date,
                   ),
