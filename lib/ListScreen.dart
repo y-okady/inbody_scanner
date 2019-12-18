@@ -67,8 +67,17 @@ class _ListScreenState extends State<ListScreen> {
             actionPane: SlidableDrawerActionPane(),
             actionExtentRatio: 0.25,
             child: ListTile(
-              title: Text(DateFormat('yyyy-MM-dd').format(_measurements[i].date)),
-              subtitle: Text('体重 ${_measurements[i].bodyWeight} kg, 筋肉 ${_measurements[i].muscleWeight} kg, 体脂肪 ${_measurements[i].bodyFatWeight} kg, BMI ${_measurements[i].bmi} kg/㎡, 体脂肪率 ${_measurements[i].bodyFatPercentage} %'),
+              title: Container(
+                padding: EdgeInsets.only(bottom: 5.0),
+                child: Text(DateFormat('yyyy-MM-dd').format(_measurements[i].date)),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('体重 ${_measurements[i].bodyWeight} kg, 筋肉 ${_measurements[i].muscleWeight} kg, 体脂肪 ${_measurements[i].bodyFatWeight} kg'),
+                  Text('BMI ${_measurements[i].bmi} kg/㎡, 体脂肪率 ${_measurements[i].bodyFatPercentage} %'),
+                ]
+              ),
               contentPadding: EdgeInsets.all(12.0),
               onTap: () {
                 Navigator.of(context).push(

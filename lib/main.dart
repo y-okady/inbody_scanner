@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'ListScreen.dart';
 import 'SplashScreen.dart';
 import 'LoginScreen.dart';
 import 'HomeScreen.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => SplashScreen(),
         '/login': (context) => LoginScreen(),
         '/home': (context) => HomeScreen(title: TITLE),
+        '/list': (context) => ListScreen(),
       },
     );
   }

@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'Measurement.dart';
 import 'FormWidget.dart';
 import 'ChartsWidget.dart';
-import 'ListScreen.dart';
 import 'Scanner.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -47,13 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _navigateToEditHistory() =>
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (BuildContext context) =>
-          ListScreen(),
-      )
-    );
+  void _navigateToList() =>
+    Navigator.of(context).pushNamed('/list');
 
   void _signOut() =>
     FirebaseAuth.instance.signOut()
@@ -137,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   _loadImage();
                   break;
                 case AppBarMenuItem.EditHistory:
-                  _navigateToEditHistory();
+                  _navigateToList();
                   break;
                 case AppBarMenuItem.SignOut:
                   _signOut();
