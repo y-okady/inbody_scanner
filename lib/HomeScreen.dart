@@ -5,11 +5,11 @@ import 'package:edge_detection/edge_detection.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'InBodyData.dart';
-import 'InBodyForm.dart';
-import 'InBodyCharts.dart';
-import 'InBodyListScreen.dart';
-import 'InBodyScanner.dart';
+import 'Measurement.dart';
+import 'FormWidget.dart';
+import 'ChartsWidget.dart';
+import 'ListScreen.dart';
+import 'Scanner.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key, this.title}) : super(key: key);
@@ -27,9 +27,8 @@ enum AppBarMenuItem {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static const String KEY = 'inBodyData';
   bool _loading = false;
-  List<InBodyData> _measurements = List();
+  List<Measurement> _measurements = List();
   StreamSubscription<QuerySnapshot> _measurementsSubscription;
 
   @override
@@ -51,9 +50,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void _navigateToEditHistory() =>
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (BuildContext context) {
-          return InBodyListScreen();
-        },
+        builder: (BuildContext context) =>
+          ListScreen(),
       )
     );
 
@@ -65,15 +63,15 @@ class _HomeScreenState extends State<HomeScreen> {
     FirebaseAuth.instance.currentUser()
       .then((user) => Firestore.instance.collection('users').document(user.uid).collection('measurements'));
 
-  Future<void> _addMeasurement(InBodyData data) =>
+  Future<void> _addMeasurement(Measurement measurement) =>
     _getMeasurementsCollection()
-      .then((collection) => collection.document().setData(data.toJson()));
+      .then((collection) => collection.document().setData(measurement.toJson()));
 
   Future<StreamSubscription<QuerySnapshot>> _subscribeMeasurements() =>
     _getMeasurementsCollection()
       .then((collection) => collection.orderBy('date', descending: true).snapshots().listen((data) {
         setState(() {
-          _measurements = data.documents.map((doc) => InBodyData.fromJson(doc.documentID, doc.data)).toList();
+          _measurements = data.documents.map((doc) => Measurement.fromJson(doc.documentID, doc.data)).toList();
         });
       }));
 
@@ -81,14 +79,14 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _loading = true;
     });
-    InBodyData measurement = await InBodyScanner.scan(image);
+    Measurement measurement = await Scanner.scan(image);
     setState(() {
       _loading = false;
     });
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (BuildContext context) =>
-          InBodyForm(measurement, _addMeasurement),
+          FormWidget(measurement, _addMeasurement),
         fullscreenDialog: true,
       )
     );
@@ -165,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ]
       ) : Container(
-        child: InBodyCharts(_measurements),
+        child: ChartsWidget(_measurements),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _takePhoto,

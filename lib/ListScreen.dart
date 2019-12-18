@@ -6,16 +6,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
-import 'InBodyData.dart';
-import 'InBodyForm.dart';
+import 'Measurement.dart';
+import 'FormWidget.dart';
 
-class InBodyListScreen extends StatefulWidget {
+class ListScreen extends StatefulWidget {
   @override
-  _InBodyListScreenState createState() => _InBodyListScreenState();
+  _ListScreenState createState() => _ListScreenState();
 }
 
-class _InBodyListScreenState extends State<InBodyListScreen> {
-  List<InBodyData> _measurements = List();
+class _ListScreenState extends State<ListScreen> {
+  List<Measurement> _measurements = List();
   StreamSubscription<QuerySnapshot> _measurementsSubscription;
 
   @override
@@ -38,19 +38,19 @@ class _InBodyListScreenState extends State<InBodyListScreen> {
     FirebaseAuth.instance.currentUser()
       .then((user) => Firestore.instance.collection('users').document(user.uid).collection('measurements'));
 
-  Future<void> _updateMeasurement(InBodyData data) =>
+  Future<void> _updateMeasurement(Measurement measurement) =>
     _getMeasurementsCollection()
-      .then((collection) => collection.document(data.id).setData(data.toJson()));
+      .then((collection) => collection.document(measurement.id).setData(measurement.toJson()));
 
-  Future<void> _deleteMeasurement(InBodyData data) =>
+  Future<void> _deleteMeasurement(Measurement measurement) =>
     _getMeasurementsCollection()
-      .then((collection) => collection.document(data.id).delete());
+      .then((collection) => collection.document(measurement.id).delete());
 
   Future<StreamSubscription<QuerySnapshot>> _subscribeMeasurements() =>
     _getMeasurementsCollection()
       .then((collection) => collection.orderBy('date', descending: true).snapshots().listen((data) {
         setState(() {
-          _measurements = data.documents.map((doc) => InBodyData.fromJson(doc.documentID, doc.data)).toList();
+          _measurements = data.documents.map((doc) => Measurement.fromJson(doc.documentID, doc.data)).toList();
         });
       }));
 
@@ -74,7 +74,7 @@ class _InBodyListScreenState extends State<InBodyListScreen> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (BuildContext context) =>
-                      InBodyForm(_measurements[i], _updateMeasurement),
+                      FormWidget(_measurements[i], _updateMeasurement),
                     fullscreenDialog: true,
                   )
                 );

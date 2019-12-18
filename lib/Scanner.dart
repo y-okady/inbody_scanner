@@ -1,10 +1,10 @@
 
 import 'dart:io';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
-import 'InBodyData.dart';
+import 'Measurement.dart';
 
-class InBodyScanner {
-  static Future<InBodyData> scan(final File image) async {
+class Scanner {
+  static Future<Measurement> scan(final File image) async {
     final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(image);
     final TextRecognizer textRecognizer = FirebaseVision.instance.cloudTextRecognizer();
     final VisionText visionText = await textRecognizer.processImage(visionImage);
@@ -54,11 +54,11 @@ class InBodyScanner {
       weights.removeAt(4);
     }
 
-    InBodyData data = InBodyData(date, weights[0], weights[1], weights[2],
+    Measurement measurement = Measurement(date, weights[0], weights[1], weights[2],
       weights[3], weights[4], weights[5], weights[6], weights[7],
       bmi, percentages[0], percentages[1], percentages[2], percentages[3]);
 
-    return data;
+    return measurement;
   }
 
   static double _findNumeric(String text, List<String> texts, int index) {

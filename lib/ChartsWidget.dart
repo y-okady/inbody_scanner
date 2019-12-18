@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'InBodyData.dart';
+import 'Measurement.dart';
 
-class InBodyCharts extends StatefulWidget {
-  InBodyCharts(this.measurements, {Key key}) : super(key: key);
+class ChartsWidget extends StatefulWidget {
+  ChartsWidget(this.measurements, {Key key}) : super(key: key);
 
-  final List<InBodyData> measurements;
+  final List<Measurement> measurements;
 
   @override
-  _InBodyChartsState createState() => _InBodyChartsState();
+  _ChartsWidgetState createState() => _ChartsWidgetState();
 }
 
-class _InBodyChartsState extends State<InBodyCharts> {
+class _ChartsWidgetState extends State<ChartsWidget> {
   Widget _buildChart(String caption, List<LinearData> values, List<ChartSeries> serieses, {bool legend = true}) {
     return Column(
       children: <Widget>[
@@ -49,7 +49,7 @@ class _InBodyChartsState extends State<InBodyCharts> {
 
   @override
   Widget build(BuildContext context) {
-    final List<LinearData> values = widget.measurements.map((InBodyData measurement) => LinearData(measurement.date, measurement)).toList();
+    final List<LinearData> values = widget.measurements.map((Measurement measurement) => LinearData(measurement.date, measurement)).toList();
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
@@ -94,7 +94,7 @@ class _InBodyChartsState extends State<InBodyCharts> {
 
 class LinearData {
   final DateTime date;
-  final InBodyData value;
+  final Measurement value;
 
   LinearData(this.date, this.value);
 }

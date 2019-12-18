@@ -2,19 +2,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import 'InBodyData.dart';
+import 'Measurement.dart';
 
-class InBodyForm extends StatefulWidget {
-  InBodyForm(this.measurement, this.onSubmit, {Key key}) : super(key: key);
+class FormWidget extends StatefulWidget {
+  FormWidget(this.measurement, this.onSubmit, {Key key}) : super(key: key);
 
-  final InBodyData measurement;
+  final Measurement measurement;
   final Function onSubmit;
 
   @override
-  _InBodyFormState createState() => _InBodyFormState();
+  _FormWidgetState createState() => _FormWidgetState();
 }
 
-class _InBodyFormState extends State<InBodyForm> {
+class _FormWidgetState extends State<FormWidget> {
   final _formKey = GlobalKey<FormState>();
 
   _save() async {
@@ -168,7 +168,7 @@ class _InBodyFormState extends State<InBodyForm> {
                         RaisedButton(
                           color: Colors.blue,
                           child: Text(
-                            '${mode}する',
+                            mode,
                             style: TextStyle(
                               color: Colors.white
                             ),

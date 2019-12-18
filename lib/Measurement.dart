@@ -1,4 +1,4 @@
-class InBodyData {
+class Measurement {
   String id;
   DateTime date;
   double bodyWeight;
@@ -15,7 +15,7 @@ class InBodyData {
   double rightLegPercentage;
   double leftLegPercentage;
 
-  InBodyData(
+  Measurement(
     this.date,
     this.bodyWeight,
     this.muscleWeight,
@@ -32,8 +32,8 @@ class InBodyData {
     this.leftLegPercentage,
     {this.id});
 
-  factory InBodyData.fromJson(String id, Map<String, dynamic> json) => 
-    InBodyData(
+  factory Measurement.fromJson(String id, Map<String, dynamic> json) => 
+    Measurement(
       json['date'] == null ? null : DateTime.parse(json['date'] as String),
       (json['bodyWeight'] as num)?.toDouble(),
       (json['muscleWeight'] as num)?.toDouble(),
