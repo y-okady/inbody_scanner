@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'Measurement.dart';
 import 'FormWidget.dart';
-import 'ChartsWidget.dart';
+import 'DashboardWidget.dart';
 import 'Scanner.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -157,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ]
       ) : Container(
-        child: ChartsWidget(_measurements),
+        child: DashboardWidget(_measurements),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _takePhoto,

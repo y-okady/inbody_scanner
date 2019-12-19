@@ -11,7 +11,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    new Timer(new Duration(seconds: 3), _navigateToTop);
+    Future.delayed(Duration(seconds: 3), _navigateToTop);
   }
 
   void _navigateToTop() {
