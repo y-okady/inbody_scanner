@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:syncfusion_flutter_core/core.dart';
 import 'ListScreen.dart';
 import 'SplashScreen.dart';
 import 'LoginScreen.dart';
 import 'HomeScreen.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  await DotEnv().load('.env');
+  SyncfusionLicense.registerLicense(DotEnv().env['SYNCFUSION_LICENSE_KEY']);
+  runApp(MyApp());
+}
 
 const String TITLE = 'InBody Scanner for ルネサンス';
 

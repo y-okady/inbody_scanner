@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:syncfusion_flutter_charts/charts.dart';
+import "package:intl/intl.dart";
 import 'Measurement.dart';
 
 class DashboardWidget extends StatelessWidget {
@@ -108,20 +109,27 @@ class _ItemWidget extends StatelessWidget {
                 children: [
                   Container(
                     margin: EdgeInsets.only(top: 8, bottom: 8),
-                    height: 100,
-                    child: charts.TimeSeriesChart(
-                      [
-                        charts.Series<_LinearData, DateTime> (
-                          id: label,
-                          domainFn: (_LinearData data, _) => data.date,
-                          measureFn: (_LinearData data, _) => valueFn(data.value),
-                          data: measurements.map((measurement) => _LinearData(measurement.date, measurement)).toList(),
-                        )
-                      ],
-                      domainAxis: charts.EndPointsTimeAxisSpec(),
-                      primaryMeasureAxis: charts.NumericAxisSpec(
-                        tickProviderSpec: charts.BasicNumericTickProviderSpec(zeroBound: false),
+                    height: 120,
+                    child: SfCartesianChart(
+                      primaryXAxis: DateTimeAxis(
+                        dateFormat: DateFormat.Md(),
                       ),
+                      tooltipBehavior: TooltipBehavior(
+                        enable: true,
+                        header: '',
+                        format: 'point.x : point.y $unit',
+                      ),
+                      series: [
+                        SplineSeries<_LinearData, DateTime> (
+                          splineType: SplineType.monotonic,
+                          dataSource: measurements.map((measurement) => _LinearData(measurement.date, measurement)).toList(),
+                          xValueMapper: (_LinearData data, _) => data.date,
+                          yValueMapper: (_LinearData data, _) => valueFn(data.value),
+                          markerSettings: MarkerSettings(
+                            isVisible: true,
+                          ),
+                        ),
+                      ]
                     ),
                   ),
                 ],

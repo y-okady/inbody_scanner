@@ -22,7 +22,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_cupertino_localizations: ^1.0.1
-  charts_flutter: ^0.8.1
+  flutter_dotenv: ^2.1.0
+  syncfusion_flutter_charts: ^17.4.40
   firebase_core: ^0.4.3+1
   firebase_ml_vision: ^0.9.3+5
   firebase_auth: ^0.15.2
@@ -61,6 +62,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
