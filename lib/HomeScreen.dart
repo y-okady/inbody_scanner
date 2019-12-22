@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:edge_detection/edge_detection.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'Measurement.dart';
 import 'FormWidget.dart';
@@ -57,9 +59,18 @@ class _HomeScreenState extends State<HomeScreen> {
     FirebaseAuth.instance.currentUser()
       .then((user) => Firestore.instance.collection('users').document(user.uid).collection('measurements'));
 
-  Future<void> _addMeasurement(Measurement measurement) =>
+  Future<DocumentReference> _addMeasurement(Measurement measurement) =>
     _getMeasurementsCollection()
-      .then((collection) => collection.document().setData(measurement.toJson()));
+      .then((collection) => collection.document())
+      .then((doc) => doc.setData(measurement.toJson()).then((_) => doc));
+
+  Future<File> _compressImage(File image) =>
+    FlutterImageCompress.compressAndGetFile(image.absolute.path, image.absolute.path, quality: 80, minWidth: 720, minHeight: 480);
+
+  Future<StorageUploadTask> _addImage(String id, File image) =>
+    FirebaseAuth.instance.currentUser()
+      .then((user) => _compressImage(image)
+        .then((compressedImage) => FirebaseStorage.instance.ref().child('users/${user.uid}/measurements/$id').putFile(compressedImage)));
 
   Future<StreamSubscription<QuerySnapshot>> _subscribeMeasurements() =>
     _getMeasurementsCollection()
@@ -80,7 +91,9 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (BuildContext context) =>
-          FormWidget(measurement, _addMeasurement),
+          FormWidget(measurement, Image.file(image), (measurement) =>
+            _addMeasurement(measurement)
+              .then((doc) => _addImage(doc.documentID, image))),
         fullscreenDialog: true,
       )
     );

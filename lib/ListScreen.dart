@@ -1,8 +1,7 @@
-
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
@@ -42,9 +41,13 @@ class _ListScreenState extends State<ListScreen> {
     _getMeasurementsCollection()
       .then((collection) => collection.document(measurement.id).setData(measurement.toJson()));
 
-  Future<void> _deleteMeasurement(Measurement measurement) =>
+  Future<void> _deleteMeasurement(String id) =>
     _getMeasurementsCollection()
-      .then((collection) => collection.document(measurement.id).delete());
+      .then((collection) => collection.document(id).delete());
+
+  Future<void> _deleteImage(String id) =>
+    FirebaseAuth.instance.currentUser()
+      .then((user) => FirebaseStorage.instance.ref().child('users/${user.uid}/measurements/$id').delete());
 
   Future<StreamSubscription<QuerySnapshot>> _subscribeMeasurements() =>
     _getMeasurementsCollection()
@@ -60,7 +63,11 @@ class _ListScreenState extends State<ListScreen> {
       appBar: AppBar(
         title: Text('履歴'),
       ),
-      body: ListView.separated(
+      body: _measurements.isEmpty ? Container(
+        padding: EdgeInsets.all(16),
+        alignment: Alignment.center,
+        child: Text('測定結果はありません。'),
+      ) : ListView.separated(
         itemCount: _measurements.length,
         itemBuilder: (context, i) =>
           Slidable(
@@ -79,15 +86,15 @@ class _ListScreenState extends State<ListScreen> {
                 ]
               ),
               contentPadding: EdgeInsets.all(12.0),
-              onTap: () {
-                Navigator.of(context).push(
+              onTap: () => FirebaseAuth.instance.currentUser()
+                .then((user) => FirebaseStorage.instance.ref().child('users/${user.uid}/measurements/${_measurements[i].id}').getDownloadURL())
+                .then((url) => Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (BuildContext context) =>
-                      FormWidget(_measurements[i], _updateMeasurement),
+                      FormWidget(_measurements[i], Image.network(url), _updateMeasurement),
                     fullscreenDialog: true,
                   )
-                );
-              },
+                )),
             ),
             actions: [],
             secondaryActions: [
@@ -95,7 +102,11 @@ class _ListScreenState extends State<ListScreen> {
                 caption: '削除',
                 color: Colors.red,
                 icon: Icons.delete,
-                onTap: () => _deleteMeasurement(_measurements[i]),
+                onTap: () {
+                  final String id = _measurements[i].id;
+                  return _deleteMeasurement(id)
+                    .then((_) => _deleteImage(id));
+                }
               ),
             ],
           ),
