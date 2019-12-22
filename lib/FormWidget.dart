@@ -61,7 +61,7 @@ class _FormWidgetState extends State<FormWidget> {
                   children: [
                     DateTimeField(
                       decoration: InputDecoration(labelText: '日付'),
-                      format: DateFormat('yyyy-MM-dd'),
+                      format: DateFormat('y/M/d'),
                       initialValue: widget.measurement.date,
                       onShowPicker: (context, currentValue) => showDatePicker(
                         context: context,
@@ -128,7 +128,7 @@ class _FormWidgetState extends State<FormWidget> {
                       onSaved: (text) => widget.measurement.leftLegWeight = double.parse(text),
                     ),
                     TextFormField(
-                      decoration: InputDecoration(labelText: 'BMI (kg/㎡)'),
+                      decoration: InputDecoration(labelText: 'BMI (kg/m²)'),
                       keyboardType: TextInputType.text,
                       initialValue: widget.measurement.bmi.toString(),
                       validator: _requiredDoubleValueValidator,

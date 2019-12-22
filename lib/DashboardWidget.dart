@@ -21,7 +21,7 @@ class DashboardWidget extends StatelessWidget {
       child: Column(
         children: [
           _ItemWidget('体重', 'kg', false, measurements, (measurement) => measurement.bodyWeight),
-          _ItemWidget('BMI', 'kg/m2', false, measurements, (measurement) => measurement.bmi),
+          _ItemWidget('BMI', 'kg/m²', false, measurements, (measurement) => measurement.bmi),
           _ItemWidget('体脂肪率', '%', false, measurements, (measurement) => measurement.bodyFatPercentage),
           _ItemWidget('体脂肪', 'kg', false, measurements, (measurement) => measurement.bodyFatWeight),
           _ItemWidget('筋肉', 'kg', true, measurements, (measurement) => measurement.muscleWeight),
@@ -112,7 +112,7 @@ class _ItemWidget extends StatelessWidget {
                     height: 120,
                     child: SfCartesianChart(
                       primaryXAxis: DateTimeAxis(
-                        dateFormat: DateFormat.Md(),
+                        dateFormat: DateFormat('M/d'),
                       ),
                       tooltipBehavior: TooltipBehavior(
                         enable: true,

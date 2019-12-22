@@ -11,7 +11,12 @@ class Scanner {
     String text = '';
     visionText.blocks.forEach((TextBlock block) {
       block.lines.forEach((TextLine line) {
-        text += line.text.replaceAll(',', '.').replaceAll('O', '0') + ' ';
+        text += line.text
+          .replaceAll(',', '.')
+          .replaceAll('O', '0')
+          .replaceAll('I', '1')
+          .replaceAll('l', '1')
+          + ' ';
       });
     });
     textRecognizer.close();
@@ -22,27 +27,32 @@ class Scanner {
     List<double> weights = [];
     List<double> percentages = [];
     for (int i = 0; i < texts.length; i++) {
-      if ((new RegExp('^[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}\$').hasMatch(texts[i]))) {
-        if (date == null) {
-          List<String> substrings = texts[i].split('.');
-          try {
-            date = DateTime(int.parse(substrings[0]), int.parse(substrings[1]), int.parse(substrings[2]));
-          } catch (e) {
-            print(e);
-          }
+      if (RegExp('^20[0-9]{2}\.').hasMatch(texts[i])) {
+        String dateStr = texts[i];
+        if (dateStr.endsWith('.')) { // 2019. or 2019.12
+          dateStr += texts[++i];
+        }
+        if (dateStr.endsWith('.')) { // 2019.12
+          dateStr += texts[++i];
+        }
+        List<String> substrings = dateStr.split('.');
+        try {
+          date = DateTime(int.parse(substrings[0]), int.parse(substrings[1]), int.parse(substrings[2]));
+        } catch (e) {
+          print(e);
         }
       } else if (texts[i].endsWith('kg')) {
-        double value = _findNumeric(texts[i].replaceAll('kg', ''), texts, i);
+        double value = _findNumeric(texts[i].substring(0, texts[i].indexOf('kg')), texts, i);
         if (value > 0.0) {
           weights.add(value);
         }
       } else if (texts[i].endsWith('%')) {
-        double value = _findNumeric(texts[i].replaceAll('%', ''), texts, i);
+        double value = _findNumeric(texts[i].substring(0, texts[i].indexOf('%')), texts, i);
         if (value > 0.0) {
           percentages.add(value);
         }
       } else if (texts[i].contains('kg/m')) {
-        bmi = _findNumeric(texts[i].replaceAll('kg/m2', '').replaceAll('kg/m', ''), texts, i);
+        bmi = _findNumeric(texts[i].substring(0, texts[i].indexOf('kg/m')), texts, i);
       }
     }
     // ヘッダーの体重
@@ -71,6 +81,6 @@ class Scanner {
       text = texts[prevIndex] + text;
       prevIndex -= 1;
     }
-    return double.tryParse(text) ?? 0.0;
+    return double.tryParse(RegExp('([0-9]+\.[0-9]+)').firstMatch(text)?.group(0) ?? '') ?? 0.0;
   }
 }

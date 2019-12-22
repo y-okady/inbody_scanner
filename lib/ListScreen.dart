@@ -76,13 +76,13 @@ class _ListScreenState extends State<ListScreen> {
             child: ListTile(
               title: Container(
                 padding: EdgeInsets.only(bottom: 5.0),
-                child: Text(DateFormat('yyyy-MM-dd').format(_measurements[i].date)),
+                child: Text(DateFormat('y/M/d').format(_measurements[i].date)),
               ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('体重 ${_measurements[i].bodyWeight} kg, 筋肉 ${_measurements[i].muscleWeight} kg, 体脂肪 ${_measurements[i].bodyFatWeight} kg'),
-                  Text('BMI ${_measurements[i].bmi} kg/㎡, 体脂肪率 ${_measurements[i].bodyFatPercentage} %'),
+                  Text('BMI ${_measurements[i].bmi} kg/m², 体脂肪率 ${_measurements[i].bodyFatPercentage} %'),
                 ]
               ),
               contentPadding: EdgeInsets.all(12.0),
