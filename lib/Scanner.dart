@@ -41,6 +41,8 @@ class Scanner {
         } catch (e) {
           print(e);
         }
+      } else if (texts[i].contains('kg/m')) {
+        bmi = _findNumeric(texts[i].substring(0, texts[i].indexOf('kg/m')), texts, i);
       } else if (texts[i].endsWith('kg')) {
         double value = _findNumeric(texts[i].substring(0, texts[i].indexOf('kg')), texts, i);
         if (value > 0.0) {
@@ -51,33 +53,22 @@ class Scanner {
         if (value > 0.0) {
           percentages.add(value);
         }
-      } else if (texts[i].contains('kg/m')) {
-        bmi = _findNumeric(texts[i].substring(0, texts[i].indexOf('kg/m')), texts, i);
       }
     }
     if (weights.length == 0) {
       return Measurement();
     }
 
-    // ヘッダーの体重
-    weights.removeAt(0);
-    // エクササイズプランの体重
-    if (weights[3] == weights[0]) {
-      weights.removeAt(3);
-    } else if (weights[4] == weights[0]) {
-      weights.removeAt(4);
-    }
-
     Measurement measurement = Measurement(
       date: date,
       bodyWeight: weights[0],
-      muscleWeight: weights[1],
-      bodyFatWeight: weights[2],
-      rightArmWeight: weights[3],
-      leftArmWeight: weights[4],
-      trunkWeight: weights[5],
-      rightLegWeight: weights[6],
-      leftLegWeight: weights[7],
+      muscleWeight: weights[2],
+      bodyFatWeight: weights[3],
+      rightArmWeight: weights[4],
+      leftArmWeight: weights[5],
+      trunkWeight: weights[6],
+      rightLegWeight: weights[7],
+      leftLegWeight: weights[8],
       bmi: bmi,
       bodyFatPercentage: percentages[0],
       trunkPercentage: percentages[1],
