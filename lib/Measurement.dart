@@ -15,7 +15,7 @@ class Measurement {
   double rightLegPercentage;
   double leftLegPercentage;
 
-  Measurement(
+  Measurement({
     this.date,
     this.bodyWeight,
     this.muscleWeight,
@@ -30,24 +30,25 @@ class Measurement {
     this.trunkPercentage,
     this.rightLegPercentage,
     this.leftLegPercentage,
-    {this.id});
+    this.id
+  });
 
   factory Measurement.fromJson(String id, Map<String, dynamic> json) => 
     Measurement(
-      json['date'] == null ? null : DateTime.parse(json['date'] as String),
-      (json['bodyWeight'] as num)?.toDouble(),
-      (json['muscleWeight'] as num)?.toDouble(),
-      (json['bodyFatWeight'] as num)?.toDouble(),
-      (json['rightArmWeight'] as num)?.toDouble(),
-      (json['leftArmWeight'] as num)?.toDouble(),
-      (json['trunkWeight'] as num)?.toDouble(),
-      (json['rightLegWeight'] as num)?.toDouble(),
-      (json['leftLegWeight'] as num)?.toDouble(),
-      (json['bmi'] as num)?.toDouble(),
-      (json['bodyFatPercentage'] as num)?.toDouble(),
-      (json['trunkPercentage'] as num)?.toDouble(),
-      (json['rightLegPercentage'] as num)?.toDouble(),
-      (json['leftLegPercentage'] as num)?.toDouble(),
+      date: json['date'] == null ? null : DateTime.parse(json['date'] as String),
+      bodyWeight: (json['bodyWeight'] as num)?.toDouble(),
+      muscleWeight: (json['muscleWeight'] as num)?.toDouble(),
+      bodyFatWeight: (json['bodyFatWeight'] as num)?.toDouble(),
+      rightArmWeight: (json['rightArmWeight'] as num)?.toDouble(),
+      leftArmWeight: (json['leftArmWeight'] as num)?.toDouble(),
+      trunkWeight: (json['trunkWeight'] as num)?.toDouble(),
+      rightLegWeight: (json['rightLegWeight'] as num)?.toDouble(),
+      leftLegWeight: (json['leftLegWeight'] as num)?.toDouble(),
+      bmi: (json['bmi'] as num)?.toDouble(),
+      bodyFatPercentage: (json['bodyFatPercentage'] as num)?.toDouble(),
+      trunkPercentage: (json['trunkPercentage'] as num)?.toDouble(),
+      rightLegPercentage: (json['rightLegPercentage'] as num)?.toDouble(),
+      leftLegPercentage: (json['leftLegPercentage'] as num)?.toDouble(),
       id: id,
     );
 

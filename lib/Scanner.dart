@@ -55,6 +55,10 @@ class Scanner {
         bmi = _findNumeric(texts[i].substring(0, texts[i].indexOf('kg/m')), texts, i);
       }
     }
+    if (weights.length == 0) {
+      return Measurement();
+    }
+
     // ヘッダーの体重
     weights.removeAt(0);
     // エクササイズプランの体重
@@ -64,9 +68,21 @@ class Scanner {
       weights.removeAt(4);
     }
 
-    Measurement measurement = Measurement(date, weights[0], weights[1], weights[2],
-      weights[3], weights[4], weights[5], weights[6], weights[7],
-      bmi, percentages[0], percentages[1], percentages[2], percentages[3]);
+    Measurement measurement = Measurement(
+      date: date,
+      bodyWeight: weights[0],
+      muscleWeight: weights[1],
+      bodyFatWeight: weights[2],
+      rightArmWeight: weights[3],
+      leftArmWeight: weights[4],
+      trunkWeight: weights[5],
+      rightLegWeight: weights[6],
+      leftLegWeight: weights[7],
+      bmi: bmi,
+      bodyFatPercentage: percentages[0],
+      trunkPercentage: percentages[1],
+      rightLegPercentage: percentages[2],
+      leftLegPercentage: percentages[3]);
 
     return measurement;
   }

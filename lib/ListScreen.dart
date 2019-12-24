@@ -14,6 +14,7 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Measurement> _measurements = List();
   StreamSubscription<QuerySnapshot> _measurementsSubscription;
 
@@ -60,13 +61,21 @@ class _ListScreenState extends State<ListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('履歴'),
+        title: Text('データの編集'),
       ),
       body: _measurements.isEmpty ? Container(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(24),
         alignment: Alignment.center,
-        child: Text('測定結果はありません。'),
+        child: Text('測定結果はありません。',
+          style: TextStyle(
+            color: Colors.black54,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
       ) : ListView.separated(
         itemCount: _measurements.length,
         itemBuilder: (context, i) =>
@@ -104,8 +113,12 @@ class _ListScreenState extends State<ListScreen> {
                 icon: Icons.delete,
                 onTap: () {
                   final String id = _measurements[i].id;
+                  final String dateStr = DateFormat('y/M/d').format(_measurements[i].date);
                   return _deleteMeasurement(id)
-                    .then((_) => _deleteImage(id));
+                    .then((_) => _deleteImage(id))
+                    .then((_) => _scaffoldKey.currentState.showSnackBar(SnackBar(
+                      content: Text('$dateStr の測定結果を削除しました。'),
+                    )));
                 }
               ),
             ],

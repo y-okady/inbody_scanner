@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:edge_detection/edge_detection.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,7 +14,7 @@ import 'DashboardWidget.dart';
 import 'Scanner.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key key, this.title}) : super(key: key);
+  HomeScreen(this.title, {Key key}) : super(key: key);
 
   final String title;
 
@@ -28,6 +29,7 @@ enum AppBarMenuItem {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _loading = false;
   List<Measurement> _measurements = List();
   StreamSubscription<QuerySnapshot> _measurementsSubscription;
@@ -80,23 +82,25 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }));
 
-  Future<void> _scanImage(final File image) async {
-    setState(() {
-      _loading = true;
-    });
-    Measurement measurement = await Scanner.scan(image);
-    setState(() {
-      _loading = false;
-    });
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (BuildContext context) =>
-          FormWidget(measurement, Image.file(image), (measurement) =>
-            _addMeasurement(measurement)
-              .then((doc) => _addImage(doc.documentID, image))),
-        fullscreenDialog: true,
-      )
-    );
+  Future<void> _scanImage(final File image) {
+    setState(() =>_loading = true);
+    return Scanner.scan(image)
+      .then((measurement) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (BuildContext context) =>
+              FormWidget(measurement, Image.file(image), (Measurement measurement) =>
+                _addMeasurement(measurement)
+                  .then((doc) => _addImage(doc.documentID, image))
+                  .then((_) => _scaffoldKey.currentState.showSnackBar(SnackBar(
+                    content: Text('${DateFormat('y/M/d').format(measurement.date)} の測定結果を登録しました！'),
+                  ))
+              )),
+            fullscreenDialog: true,
+          )
+        );
+      })
+      .whenComplete(() => setState(() =>_loading = false));
   }
 
   Future<void> _loadImage() async {
@@ -120,6 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
@@ -156,21 +161,24 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: _loading ? Stack(
+      body: Stack(
         children: [
-          Opacity(
-            opacity: 0.3,
-            child: const ModalBarrier(
-              dismissible: false,
-              color: Colors.grey,
-            )
-          ),
-          Center(
-            child: CircularProgressIndicator(),
-          ),
-        ]
-      ) : Container(
-        child: DashboardWidget(_measurements),
+          DashboardWidget(_measurements),
+          _loading ? Stack(
+            children: [
+              Opacity(
+                opacity: 0.3,
+                child: const ModalBarrier(
+                  dismissible: false,
+                  color: Colors.grey,
+                )
+              ),
+              Center(
+                child: CircularProgressIndicator(),
+              ),
+            ],
+          ) : Container(),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _takePhoto,

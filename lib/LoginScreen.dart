@@ -3,7 +3,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:inbody_scanner/GoogleSignInButton.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  LoginScreen(this.title, {Key key}) : super(key: key);
+
+  final String title;
+
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool _loading = false;
+
   Future<AuthResult> _handleSignIn() async {
     final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
@@ -17,26 +28,92 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('ログイン'),
-      ),body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            GoogleSignInButton(
-              onPressed: () {
-                _handleSignIn()
-                  .then((AuthResult result) {
-                    if (result.user != null) {
-                      Navigator.of(context).pushReplacementNamed('/home');
-                    }
-                  })
-                  .catchError((e) => print(e));
-              },
+      body: Stack(
+        children: [
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Column(
+                  children: [
+                    Text('スポーツクラブ ルネサンスで',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text('InBody 測定をして、',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text('結果をカメラで読み取ろう。',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+                Image.asset('assets/guide.png', width: MediaQuery.of(context).size.width - 64),
+                Column(
+                  children: [
+                    Text('${widget.title} があなたの',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text('理想の体づくりをサポートします。',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+                Container(
+                  margin: EdgeInsets.all(12),
+                ),
+                GoogleSignInButton(
+                  onPressed: () {
+                    setState(() => _loading = true);
+                    _handleSignIn()
+                      .then((AuthResult result) {
+                        if (result.user != null) {
+                          Navigator.of(context).pushReplacementNamed('/home');
+                        }
+                      })
+                      .catchError((e) => print(e))
+                      .whenComplete(() => setState(() => _loading = false));
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          _loading ? Stack(
+            children: [
+              Opacity(
+                opacity: 0.3,
+                child: const ModalBarrier(
+                  dismissible: false,
+                  color: Colors.grey,
+                )
+              ),
+              Center(
+                child: CircularProgressIndicator(),
+              ),
+            ],
+          ) : Container(),
+        ],
       ),
+      backgroundColor: Colors.black,
     );
   }
 }

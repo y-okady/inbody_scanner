@@ -7,12 +7,11 @@ class GoogleSignInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OutlineButton(
+    return FlatButton(
       splashColor: Colors.grey,
       onPressed: this.onPressed,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-      highlightElevation: 0,
-      borderSide: BorderSide(color: Colors.grey),
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         child: Row(
@@ -26,6 +25,7 @@ class GoogleSignInButton extends StatelessWidget {
                 'Googleアカウントでログイン',
                 style: TextStyle(
                   fontSize: 16,
+                  fontWeight: FontWeight.bold,
                   color: Colors.black54,
                 ),
               ),
