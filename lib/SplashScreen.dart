@@ -22,9 +22,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final double width = MediaQuery.of(context).size.width;
+    final double height = MediaQuery.of(context).size.height;
     return Scaffold(
       body: Center(
-        child: Image.asset('assets/icon.png', width: 128.0),
+        child: Image.asset('assets/icon.png', width: (width < height ? width : height) / 2),
       ),
       backgroundColor: Theme.of(context).primaryColor,
     );
