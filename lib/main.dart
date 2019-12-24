@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: TITLE,
       theme: ThemeData(
-        primarySwatch: Colors.pink,
+        primarySwatch: Colors.teal,
       ),
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,

@@ -102,6 +102,7 @@ class _ItemWidget extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     color: diff == 0 ? Colors.grey : (diff > 0) && positive || (diff < 0) && ! positive ? Colors.green : Colors.red,
+                    fontWeight: (diff > 0) && positive || (diff < 0) && ! positive ? FontWeight.bold : FontWeight.normal, 
                   ),
                 ),
               ) : Container(),
