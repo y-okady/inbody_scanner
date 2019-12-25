@@ -32,7 +32,7 @@
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-1374430746742075~8236344751</string>
+	<string>ca-app-pub-8070832908008411~9603845869</string>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
 	<key>LSRequiresIPhoneOS</key>
