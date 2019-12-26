@@ -8,16 +8,13 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
+import 'Env.dart';
 import 'Measurement.dart';
 import 'FormWidget.dart';
 import 'DashboardWidget.dart';
 import 'Scanner.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen(this.title, {Key key}) : super(key: key);
-
-  final String title;
-
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -25,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 enum AppBarMenuItem {
   LoadImage,
   EditHistory,
+  About,
   SignOut,
 }
 
@@ -52,6 +50,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _navigateToList() =>
     Navigator.of(context).pushNamed('/list');
+
+  void _navigateToAbout() =>
+    Navigator.of(context).pushNamed('/about');
 
   void _signOut() =>
     FirebaseAuth.instance.signOut()
@@ -126,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(Env.APP_NAME),
         actions: [
           PopupMenuButton(
             itemBuilder: (context) => [
@@ -137,6 +138,10 @@ class _HomeScreenState extends State<HomeScreen> {
               PopupMenuItem(
                 value: AppBarMenuItem.EditHistory,
                 child: Text('データを編集する'),
+              ),
+              PopupMenuItem(
+                value: AppBarMenuItem.About,
+                child: Text('このアプリについて'),
               ),
               PopupMenuItem(
                 value: AppBarMenuItem.SignOut,
@@ -150,6 +155,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   break;
                 case AppBarMenuItem.EditHistory:
                   _navigateToList();
+                  break;
+                case AppBarMenuItem.About:
+                  _navigateToAbout();
                   break;
                 case AppBarMenuItem.SignOut:
                   _signOut();

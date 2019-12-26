@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
+import 'Env.dart';
 
 class SplashScreen extends StatefulWidget {
-  SplashScreen(this.title, {Key key}) : super(key: key);
-
-  final String title;
-
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -34,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset('assets/icon.png', width: (width < height ? width : height) / 2),
-            Text(widget.title,
+            Text(Env.APP_NAME,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,

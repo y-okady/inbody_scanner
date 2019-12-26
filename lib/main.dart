@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:syncfusion_flutter_core/core.dart';
 import 'package:admob_flutter/admob_flutter.dart';
+import 'AboutScreen.dart';
 import 'Env.dart';
 import 'ListScreen.dart';
 import 'SplashScreen.dart';
@@ -16,13 +17,11 @@ void main() {
   });
 }
 
-const String TITLE = 'InBody Scanner';
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: TITLE,
+      title: Env.APP_NAME,
       theme: ThemeData(
         primarySwatch: Colors.teal,
       ),
@@ -37,10 +36,11 @@ class MyApp extends StatelessWidget {
       ],
       initialRoute: '/',
       routes: {
-        '/': (context) => SplashScreen(TITLE),
-        '/login': (context) => LoginScreen(TITLE),
-        '/home': (context) => HomeScreen(TITLE),
+        '/': (context) => SplashScreen(),
+        '/login': (context) => LoginScreen(),
+        '/home': (context) => HomeScreen(),
         '/list': (context) => ListScreen(),
+        '/about': (context) => AboutScreen(),
       },
     );
   }

@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Env {
+  static const APP_NAME = 'InBody Scanner';
+
   static Future<dynamic> load() =>
     DotEnv().load('.env');
 

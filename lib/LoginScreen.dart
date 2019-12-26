@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:inbody_scanner/GoogleSignInButton.dart';
+import 'GoogleSignInButton.dart';
+import 'Env.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen(this.title, {Key key}) : super(key: key);
-
-  final String title;
-
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -62,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Image.asset('assets/guide.png', width: MediaQuery.of(context).size.width - 64),
                 Column(
                   children: [
-                    Text('${widget.title} があなたの',
+                    Text('${Env.APP_NAME} があなたの',
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.white,
