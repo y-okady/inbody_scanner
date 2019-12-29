@@ -42,6 +42,7 @@ class MyApp extends StatelessWidget {
         '/list': (context) => ListScreen(),
         '/about': (context) => AboutScreen(),
       },
+      // debugShowCheckedModeBanner: false,
     );
   }
 }

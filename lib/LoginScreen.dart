@@ -16,6 +16,14 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _loading = false;
+  bool _isAppleSignInAvailable = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _isAppleSignInAvailable = Platform.isIOS;
+  }
 
   Future<AuthResult> _handleGoogleSignIn() async {
     final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
@@ -51,94 +59,101 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Column(
-                  children: [
-                    Text('スポーツクラブ ルネサンスで',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
+          LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Column(
+                        children: [
+                          Text('スポーツクラブ ルネサンスで',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          Text('InBody 測定をして、',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          Text('結果をカメラで読み取ろう。',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    Text('InBody 測定をして、',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
+                      Image.asset('assets/guide.png', width: MediaQuery.of(context).size.width - 64),
+                      Column(
+                        children: [
+                          Text('${Env.APP_NAME} があなたの',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          Text('理想の体づくりをサポートします。',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    Text('結果をカメラで読み取ろう。',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
+                      Container(
+                        margin: EdgeInsets.all(12),
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-                Image.asset('assets/guide.png', width: MediaQuery.of(context).size.width - 64),
-                Column(
-                  children: [
-                    Text('${Env.APP_NAME} があなたの',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
+                      Container(
+                        width: 280,
+                        height: 40,
+                        margin: EdgeInsets.all(4),
+                        child: GoogleSignInButton(
+                          onPressed: () {
+                            setState(() => _loading = true);
+                            _handleGoogleSignIn()
+                              .then((AuthResult result) {
+                                if (result.user != null) {
+                                  Navigator.of(context).pushReplacementNamed('/home');
+                                }
+                              })
+                              .catchError((e) => print(e))
+                              .whenComplete(() => setState(() => _loading = false));
+                          },
+                        ),
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    Text('理想の体づくりをサポートします。',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-                Container(
-                  margin: EdgeInsets.all(12),
-                ),
-                Container(
-                  width: 280,
-                  height: 40,
-                  margin: EdgeInsets.all(4),
-                  child: GoogleSignInButton(
-                    onPressed: () {
-                      setState(() => _loading = true);
-                      _handleGoogleSignIn()
-                        .then((AuthResult result) {
-                          if (result.user != null) {
-                            Navigator.of(context).pushReplacementNamed('/home');
-                          }
-                        })
-                        .catchError((e) => print(e))
-                        .whenComplete(() => setState(() => _loading = false));
-                    },
+                      _isAppleSignInAvailable ? Container(
+                        width: 280,
+                        height: 40,
+                        margin: EdgeInsets.all(4),
+                        child: AppleSignInButton(
+                          onPressed: () {
+                            setState(() => _loading = true);
+                            _handleAppleSignIn()
+                              .then((AuthResult result) {
+                                if (result.user != null) {
+                                  Navigator.of(context).pushReplacementNamed('/home');
+                                }
+                              })
+                              .catchError((e) => print(e))
+                              .whenComplete(() => setState(() => _loading = false));
+                          },
+                        ),
+                      ) : Container(),
+                    ],
                   ),
                 ),
-                Platform.isIOS ? Container(
-                  width: 280,
-                  height: 40,
-                  margin: EdgeInsets.all(4),
-                  child: AppleSignInButton(
-                    onPressed: () {
-                      setState(() => _loading = true);
-                      _handleAppleSignIn()
-                        .then((AuthResult result) {
-                          if (result.user != null) {
-                            Navigator.of(context).pushReplacementNamed('/home');
-                          }
-                        })
-                        .catchError((e) => print(e))
-                        .whenComplete(() => setState(() => _loading = false));
-                    },
-                  ),
-                ) : Container(),
-              ],
+              ),
             ),
           ),
           _loading ? Stack(
