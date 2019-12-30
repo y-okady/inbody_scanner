@@ -1,0 +1,21 @@
+.uk-navbar {
+  background-color: #009688 !important;
+}
+
+.uk-logo, .uk-logo:focus, .uk-logo:hover {
+  color: white;
+}
+
+.uk-logo img {
+  width: 64px;
+  height: 64px;
+  margin-right: 0.4rem;
+}
+
+.uk-logo span {
+  font-size: 1.6rem;
+}
+
+.body {
+  margin: 1.6rem;
+}
