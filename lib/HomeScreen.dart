@@ -119,7 +119,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_loading) {
       return;
     }
-    await _scanImage(File(await EdgeDetection.detectEdge));
+    final String path = await EdgeDetection.detectEdge;
+    if (path == null) {
+      return;
+    }
+    await _scanImage(File(path));
   }
 
   @override
