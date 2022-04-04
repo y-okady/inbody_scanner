@@ -29,15 +29,18 @@ enum AppBarMenuItem {
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _loading = false;
-  List<Measurement> _measurements = List();
+  List<Measurement> _measurements = [];
   StreamSubscription<QuerySnapshot> _measurementsSubscription;
 
   @override
   void initState() {
     super.initState();
 
-    _subscribeMeasurements()
-      .then((subscription) => _measurementsSubscription = subscription);
+    _measurementsSubscription = _getMeasurementsCollection().orderBy('date', descending: true).snapshots().listen((data) {
+      setState(() {
+        _measurements = data.docs.map((doc) => Measurement.fromJson(doc.id, doc.data())).toList();
+      });
+    });
   }
 
   @override
@@ -58,30 +61,15 @@ class _HomeScreenState extends State<HomeScreen> {
     FirebaseAuth.instance.signOut()
       .then((_) => Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false));
 
-  Future<CollectionReference> _getMeasurementsCollection() =>
-    FirebaseAuth.instance.currentUser()
-      .then((user) => Firestore.instance.collection('users').document(user.uid).collection('measurements'));
-
-  Future<DocumentReference> _addMeasurement(Measurement measurement) =>
-    _getMeasurementsCollection()
-      .then((collection) => collection.document())
-      .then((doc) => doc.setData(measurement.toJson()).then((_) => doc));
+  CollectionReference _getMeasurementsCollection() =>
+    FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser.uid).collection('measurements');
 
   Future<File> _compressImage(File image) =>
     FlutterImageCompress.compressAndGetFile(image.absolute.path, image.absolute.path, quality: 80, minWidth: 720, minHeight: 480);
 
-  Future<StorageUploadTask> _addImage(String id, File image) =>
-    FirebaseAuth.instance.currentUser()
-      .then((user) => _compressImage(image)
-        .then((compressedImage) => FirebaseStorage.instance.ref().child('users/${user.uid}/measurements/$id').putFile(compressedImage)));
-
-  Future<StreamSubscription<QuerySnapshot>> _subscribeMeasurements() =>
-    _getMeasurementsCollection()
-      .then((collection) => collection.orderBy('date', descending: true).snapshots().listen((data) {
-        setState(() {
-          _measurements = data.documents.map((doc) => Measurement.fromJson(doc.documentID, doc.data)).toList();
-        });
-      }));
+  Future<UploadTask> _addImage(String id, File image) =>
+      _compressImage(image)
+        .then((compressedImage) => FirebaseStorage.instance.ref().child('users/${FirebaseAuth.instance.currentUser.uid}/measurements/$id').putFile(compressedImage));
 
   Future<void> _scanImage(final File image) {
     setState(() =>_loading = true);
@@ -91,8 +79,8 @@ class _HomeScreenState extends State<HomeScreen> {
           MaterialPageRoute(
             builder: (BuildContext context) =>
               FormWidget(measurement, Image.file(image), (Measurement measurement) =>
-                _addMeasurement(measurement)
-                  .then((doc) => _addImage(doc.documentID, image))
+                _getMeasurementsCollection().add(measurement.toJson())
+                  .then((doc) => _addImage(doc.id, image))
                   .then((_) => _scaffoldKey.currentState.showSnackBar(SnackBar(
                     content: Text('${DateFormat('y/M/d').format(measurement.date)} の測定結果を登録しました！'),
                   ))
@@ -108,11 +96,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_loading) {
       return;
     }
-    final File image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    final XFile image = await new ImagePicker().pickImage(source: ImageSource.gallery);
     if (image == null) {
       return;
     }
-    await _scanImage(image);
+    await _scanImage(File(image.path)); // TODO
   }
 
   Future<void> _takePhoto() async {

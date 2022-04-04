@@ -16,9 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToTop() {
-    FirebaseAuth.instance.currentUser().then((user) {
-      Navigator.of(context).pushReplacementNamed(user == null ? '/login' : '/home');
-    });
+    Navigator.of(context).pushReplacementNamed(FirebaseAuth.instance.currentUser == null ? '/login' : '/home');
   }
 
   @override
@@ -35,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryTextTheme.title.color,
+                color: Theme.of(context).primaryTextTheme.titleLarge.color,
               ),
             ),
           ],

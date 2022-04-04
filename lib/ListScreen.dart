@@ -15,15 +15,18 @@ class ListScreen extends StatefulWidget {
 
 class _ListScreenState extends State<ListScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<Measurement> _measurements = List();
+  List<Measurement> _measurements = [];
   StreamSubscription<QuerySnapshot> _measurementsSubscription;
 
   @override
   void initState() {
     super.initState();
 
-    _subscribeMeasurements()
-      .then((subscription) => _measurementsSubscription = subscription);
+    _measurementsSubscription = _getMeasurementsCollection().orderBy('date', descending: true).snapshots().listen((data) {
+      setState(() {
+        _measurements = data.docs.map((doc) => Measurement.fromJson(doc.id, doc.data())).toList();
+      });
+    });
   }
 
   @override
@@ -34,29 +37,8 @@ class _ListScreenState extends State<ListScreen> {
     super.dispose();
   }
 
-  Future<CollectionReference> _getMeasurementsCollection() =>
-    FirebaseAuth.instance.currentUser()
-      .then((user) => Firestore.instance.collection('users').document(user.uid).collection('measurements'));
-
-  Future<void> _updateMeasurement(Measurement measurement) =>
-    _getMeasurementsCollection()
-      .then((collection) => collection.document(measurement.id).setData(measurement.toJson()));
-
-  Future<void> _deleteMeasurement(String id) =>
-    _getMeasurementsCollection()
-      .then((collection) => collection.document(id).delete());
-
-  Future<void> _deleteImage(String id) =>
-    FirebaseAuth.instance.currentUser()
-      .then((user) => FirebaseStorage.instance.ref().child('users/${user.uid}/measurements/$id').delete());
-
-  Future<StreamSubscription<QuerySnapshot>> _subscribeMeasurements() =>
-    _getMeasurementsCollection()
-      .then((collection) => collection.orderBy('date', descending: true).snapshots().listen((data) {
-        setState(() {
-          _measurements = data.documents.map((doc) => Measurement.fromJson(doc.documentID, doc.data)).toList();
-        });
-      }));
+  CollectionReference _getMeasurementsCollection() =>
+    FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser.uid).collection('measurements');
 
   @override
   Widget build(BuildContext context) {
@@ -80,8 +62,31 @@ class _ListScreenState extends State<ListScreen> {
         itemCount: _measurements.length,
         itemBuilder: (context, i) =>
           Slidable(
-            actionPane: SlidableDrawerActionPane(),
-            actionExtentRatio: 0.25,
+            startActionPane: ActionPane(
+              motion: DrawerMotion(),
+              extentRatio: 0.25,
+              children: [],
+            ),
+            endActionPane: ActionPane(
+              motion: DrawerMotion(),
+              extentRatio: 0.25,
+              children: [
+                SlidableAction(
+                  label: '削除',
+                  backgroundColor: Colors.red,
+                  icon: Icons.delete,
+                  onPressed: (context) {
+                    final String id = _measurements[i].id;
+                    final String dateStr = DateFormat('y/M/d').format(_measurements[i].date);
+                    return _getMeasurementsCollection().doc(id).delete()
+                      .then((_) => FirebaseStorage.instance.ref().child('users/${FirebaseAuth.instance.currentUser.uid}/measurements/$id').delete())
+                      .then((_) => _scaffoldKey.currentState.showSnackBar(SnackBar(
+                        content: Text('$dateStr の測定結果を削除しました。'),
+                      )));
+                  },
+                ),
+              ]
+            ),
             child: ListTile(
               title: Container(
                 padding: EdgeInsets.only(bottom: 5.0),
@@ -95,33 +100,15 @@ class _ListScreenState extends State<ListScreen> {
                 ]
               ),
               contentPadding: EdgeInsets.all(12.0),
-              onTap: () => FirebaseAuth.instance.currentUser()
-                .then((user) => FirebaseStorage.instance.ref().child('users/${user.uid}/measurements/${_measurements[i].id}').getDownloadURL())
+              onTap: () => FirebaseStorage.instance.ref().child('users/${FirebaseAuth.instance.currentUser.uid}/measurements/${_measurements[i].id}').getDownloadURL()
                 .then((url) => Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (BuildContext context) =>
-                      FormWidget(_measurements[i], Image.network(url), _updateMeasurement),
+                      FormWidget(_measurements[i], Image.network(url), (measurement) => _getMeasurementsCollection().doc(measurement.id).update(measurement.toJson())),
                     fullscreenDialog: true,
                   )
                 )),
             ),
-            actions: [],
-            secondaryActions: [
-              IconSlideAction(
-                caption: '削除',
-                color: Colors.red,
-                icon: Icons.delete,
-                onTap: () {
-                  final String id = _measurements[i].id;
-                  final String dateStr = DateFormat('y/M/d').format(_measurements[i].date);
-                  return _deleteMeasurement(id)
-                    .then((_) => _deleteImage(id))
-                    .then((_) => _scaffoldKey.currentState.showSnackBar(SnackBar(
-                      content: Text('$dateStr の測定結果を削除しました。'),
-                    )));
-                }
-              ),
-            ],
           ),
         separatorBuilder: (context, i) => Divider(height: 1),
       ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:syncfusion_flutter_core/core.dart';
 import 'package:admob_flutter/admob_flutter.dart';
 import 'AboutScreen.dart';
 import 'Env.dart';
@@ -11,8 +10,7 @@ import 'HomeScreen.dart';
 
 void main() {
   Env.load().then((_) {
-    SyncfusionLicense.registerLicense(Env.getSyncfusionLicenseKey());
-    Admob.initialize(Env.getAdMobAppId());
+    Admob.initialize(testDeviceIds: [Env.getAdMobAppId()]);
     runApp(MyApp());
   });
 }

@@ -21,7 +21,7 @@ class AboutScreen extends StatelessWidget {
       body: SafeArea(
         child: Markdown(
           data: _TEXT,
-          onTapLink: ((url) => launch(url)),
+          onTapLink: (text, href, title) => launch(href),
         )
       )
     );

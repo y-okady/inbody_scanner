@@ -25,17 +25,17 @@ class _LoginScreenState extends State<LoginScreen> {
     _isAppleSignInAvailable = Platform.isIOS;
   }
 
-  Future<AuthResult> _handleGoogleSignIn() async {
+  Future<UserCredential> _handleGoogleSignIn() async {
     final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
+    final AuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken
     );
     return FirebaseAuth.instance.signInWithCredential(credential);
   }
 
-  Future<AuthResult> _handleAppleSignIn() async {
+  Future<UserCredential> _handleAppleSignIn() async {
     final asi.AuthorizationResult result = await asi.AppleSignIn.performRequests([
       AppleIdRequest(
         requestedScopes: [Scope.email, Scope.fullName],
@@ -47,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (result.status == asi.AuthorizationStatus.cancelled) {
       throw 'Apple sign in cancelled';
     }
-    final AuthCredential credential = OAuthProvider(providerId: "apple.com").getCredential(
+    final AuthCredential credential = OAuthProvider("apple.com").credential(
       accessToken: String.fromCharCodes(result.credential.authorizationCode),
       idToken: String.fromCharCodes(result.credential.identityToken),
     );
@@ -122,8 +122,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () {
                             setState(() => _loading = true);
                             _handleGoogleSignIn()
-                              .then((AuthResult result) {
-                                if (result.user != null) {
+                              .then((UserCredential credential) {
+                                if (credential.user != null) {
                                   Navigator.of(context).pushReplacementNamed('/home');
                                 }
                               })
@@ -140,8 +140,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () {
                             setState(() => _loading = true);
                             _handleAppleSignIn()
-                              .then((AuthResult result) {
-                                if (result.user != null) {
+                              .then((UserCredential credential) {
+                                if (credential.user != null) {
                                   Navigator.of(context).pushReplacementNamed('/home');
                                 }
                               })

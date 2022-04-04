@@ -1,15 +1,15 @@
 
 import 'dart:io';
-import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
 import 'Measurement.dart';
 
 class Scanner {
   static Future<Measurement> scan(final File image) async {
-    final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(image);
-    final TextRecognizer textRecognizer = FirebaseVision.instance.cloudTextRecognizer();
-    final VisionText visionText = await textRecognizer.processImage(visionImage);
+    final InputImage inputImage = InputImage.fromFile(image);
+    final TextDetector textDetector = GoogleMlKit.vision.textDetector();
+    final RecognisedText recognisedText = await textDetector.processImage(inputImage);
     String text = '';
-    visionText.blocks.forEach((TextBlock block) {
+    recognisedText.blocks.forEach((TextBlock block) {
       block.lines.forEach((TextLine line) {
         text += line.text
           .replaceAll(',', '.')
@@ -19,7 +19,7 @@ class Scanner {
           + ' ';
       });
     });
-    textRecognizer.close();
+    textDetector.close();
 
     List<String> texts = text.split(' ');
     DateTime date;
